@@ -78,7 +78,59 @@
     <h2>Sample Code: stock_ultimate</h2>
 
 <pre><code>
-ijk
+import csv
+import pandas as pd
+import os
+
+os.chdir("C:/Users/yjshi/OneDrive/Tài liệu/Program/stock/data")
+    
+s1="115_1.csv"
+s2="115_2.csv"
+s3="115_3.csv"
+
+# 讀入第一季資料
+data1 = pd.read_csv(s1, encoding="utf-8")
+data1 = data1.set_index("公司代號")
+
+# 讀入第二季資料
+data2 = pd.read_csv(s2, encoding="utf-8")
+data2 = data2.set_index("公司代號")
+    
+data3 = pd.read_csv(s3, encoding="utf-8")
+data3 = data3.set_index("公司代號")
+
+growth_list = []
+
+for code in data2.index:  # 以第二季為基準迭代
+    if code in data1.index and code in data3.index:
+
+        # 讀三季營收
+        r1 = float(data1.loc[code, "營業收入-當月營收"])
+        r2 = float(data2.loc[code, "營業收入-當月營收"])
+        r3 = float(data3.loc[code, "營業收入-當月營收"])
+
+        # 讀三季營收
+        rev1 = float(data1.loc[code, "營業收入-上月比較增減(%)"])
+        rev2 = float(data2.loc[code, "營業收入-上月比較增減(%)"])
+        rev3 = float(data3.loc[code, "營業收入-上月比較增減(%)"])
+        
+        # 讀三季營業利益率
+        op1 = float(data1.loc[code, "營業收入-去年同月增減(%)"])
+        op2 = float(data2.loc[code, "營業收入-去年同月增減(%)"])
+        op3 = float(data3.loc[code, "營業收入-去年同月增減(%)"])
+        
+        # 篩選三季營業利益率都 > 0
+        if op1 > 0 and op2 > 0 and op3 > 0 and rev3 > 0 and rev2 > 0 and rev1 > 0:
+            growth = r3 - r1  # 計算營收成長量
+            growth_list.append((code, growth, r1, r2, r3, op1, op2, op3))
+
+# 依照營收成長量排序，取前十
+growth_list_sorted = sorted(growth_list, key=lambda x: x[1], reverse=True)[:10]
+
+# 輸出結果
+for item in growth_list_sorted:
+    code, growth, r1, r2, r3, op1, op2, op3 = item
+    print(f"{code} 營收: {r1}->{r2}->{r3} (成長 {growth})")
 </code></pre>
 
   </div>
